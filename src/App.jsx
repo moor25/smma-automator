@@ -226,11 +226,12 @@ export default function App() {
     if (!scriptUrl || !form.email || !form.datetime) return;
     setStatus("loading");
     try {
-      await fetch(scriptUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(form),
+      const params = new URLSearchParams({
+        email: form.email,
+        name: form.name,
+        datetime: form.datetime,
       });
+      await fetch(`${scriptUrl}?${params}`, { mode: "no-cors" });
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
     } catch {
