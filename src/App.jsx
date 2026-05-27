@@ -226,33 +226,22 @@ export default function App() {
     if (!scriptUrl || !form.email || !form.datetime) return;
     setStatus("loading");
 
-    const frameName = "gas_" + Date.now();
-    const frame = document.createElement("iframe");
-    frame.name = frameName;
-    frame.style.display = "none";
-    document.body.appendChild(frame);
-
-    const formEl = document.createElement("form");
-    formEl.action = scriptUrl;
-    formEl.method = "GET";
-    formEl.target = frameName;
-    formEl.style.display = "none";
-
-    [["email", form.email], ["name", form.name], ["datetime", form.datetime]].forEach(([k, v]) => {
-      const inp = document.createElement("input");
-      inp.name = k; inp.value = v; inp.type = "hidden";
-      formEl.appendChild(inp);
+    const params = new URLSearchParams({
+      email: form.email,
+      name: form.name,
+      datetime: form.datetime,
     });
-
-    document.body.appendChild(formEl);
-    formEl.submit();
+    const popup = window.open(
+      `${scriptUrl}?${params}`,
+      "_blank",
+      "width=1,height=1,left=0,top=0"
+    );
+    setTimeout(() => popup?.close(), 5000);
 
     setTimeout(() => {
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
-      frame.remove();
-      formEl.remove();
-    }, 4000);
+    }, 2000);
   };
 
   const copyCode = () => {
