@@ -225,20 +225,34 @@ export default function App() {
   const handleSubmit = () => {
     if (!scriptUrl || !form.email || !form.datetime) return;
     setStatus("loading");
-    const params = new URLSearchParams({
-      email: form.email,
-      name: form.name,
-      datetime: form.datetime,
+
+    const frameName = "gas_" + Date.now();
+    const frame = document.createElement("iframe");
+    frame.name = frameName;
+    frame.style.display = "none";
+    document.body.appendChild(frame);
+
+    const formEl = document.createElement("form");
+    formEl.action = scriptUrl;
+    formEl.method = "GET";
+    formEl.target = frameName;
+    formEl.style.display = "none";
+
+    [["email", form.email], ["name", form.name], ["datetime", form.datetime]].forEach(([k, v]) => {
+      const inp = document.createElement("input");
+      inp.name = k; inp.value = v; inp.type = "hidden";
+      formEl.appendChild(inp);
     });
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText = "display:none;width:0;height:0;border:0;";
-    iframe.src = `${scriptUrl}?${params}`;
-    document.body.appendChild(iframe);
+
+    document.body.appendChild(formEl);
+    formEl.submit();
+
     setTimeout(() => {
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
-      document.body.removeChild(iframe);
-    }, 3000);
+      frame.remove();
+      formEl.remove();
+    }, 4000);
   };
 
   const copyCode = () => {
