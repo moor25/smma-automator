@@ -222,21 +222,25 @@ export default function App() {
     return r;
   })();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!scriptUrl || !form.email || !form.datetime) return;
     setStatus("loading");
-    try {
-      const params = new URLSearchParams({
-        email: form.email,
-        name: form.name,
-        datetime: form.datetime,
-      });
-      await fetch(`${scriptUrl}?${params}`, { mode: "no-cors" });
+    const params = new URLSearchParams({
+      email: form.email,
+      name: form.name,
+      datetime: form.datetime,
+    });
+    const img = new Image();
+    img.onload = img.onerror = () => {
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
-    } catch {
-      setStatus("error");
-    }
+    };
+    img.src = `${scriptUrl}?${params}`;
+    // fallback ha 8 mp alatt nem jön válasz
+    setTimeout(() => {
+      setStatus(s => s === "loading" ? "success" : s);
+      setForm(f => f.email ? { email: "", name: "", datetime: "" } : f);
+    }, 8000);
   };
 
   const copyCode = () => {
