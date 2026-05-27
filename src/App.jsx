@@ -68,7 +68,7 @@ function doPost(e) {
 
 function createEventWithMeet(clientEmail, clientName, startTime) {
   const endTime = new Date(startTime.getTime() + 3600000);
-  const event = {
+  return Calendar.Events.insert({
     summary: "SMMA Konzultáció – " + clientName,
     start: { dateTime: startTime.toISOString(), timeZone: TIMEZONE },
     end:   { dateTime: endTime.toISOString(),   timeZone: TIMEZONE },
@@ -79,20 +79,7 @@ function createEventWithMeet(clientEmail, clientName, startTime) {
         conferenceSolutionKey: { type: "hangoutsMeet" }
       }
     }
-  };
-  const resp = UrlFetchApp.fetch(
-    "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + ScriptApp.getOAuthToken(),
-        "Content-Type": "application/json"
-      },
-      payload: JSON.stringify(event),
-      muteHttpExceptions: true
-    }
-  );
-  return JSON.parse(resp.getContentText());
+  }, "primary", { conferenceDataVersion: 1 });
 }
 
 function getMeetLink(calEvent) {
