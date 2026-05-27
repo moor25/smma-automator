@@ -230,17 +230,15 @@ export default function App() {
       name: form.name,
       datetime: form.datetime,
     });
-    const img = new Image();
-    img.onload = img.onerror = () => {
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "display:none;width:0;height:0;border:0;";
+    iframe.src = `${scriptUrl}?${params}`;
+    document.body.appendChild(iframe);
+    setTimeout(() => {
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
-    };
-    img.src = `${scriptUrl}?${params}`;
-    // fallback ha 8 mp alatt nem jön válasz
-    setTimeout(() => {
-      setStatus(s => s === "loading" ? "success" : s);
-      setForm(f => f.email ? { email: "", name: "", datetime: "" } : f);
-    }, 8000);
+      document.body.removeChild(iframe);
+    }, 3000);
   };
 
   const copyCode = () => {
