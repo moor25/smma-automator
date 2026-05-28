@@ -535,11 +535,12 @@ export default function App() {
                     maxHeight: 200, overflowY: "auto", paddingRight: 4,
                     scrollbarWidth: "thin", scrollbarColor: "#2d2d44 transparent",
                   }}>
-                    {Array.from({ length: 48 }, (_, i) => {
-                      const h = Math.floor(i / 2);
-                      const m = i % 2 === 0 ? "00" : "30";
-                      const time = `${String(h).padStart(2, "0")}:${m}`;
-                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === Number(m);
+                    {Array.from({ length: 71 }, (_, i) => {
+                      const totalMins = 4 * 60 + 30 + i * 15;
+                      const h = Math.floor(totalMins / 60);
+                      const m = totalMins % 60;
+                      const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
                       return (
                         <button key={time} onClick={() => {
                           const d = selectedDate ? new Date(selectedDate) : new Date();
