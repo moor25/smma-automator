@@ -529,34 +529,60 @@ export default function App() {
 
                 {/* Időpont */}
                 <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 16, padding: "20px", marginBottom: 12 }}>
-                  <p style={{ ...labelStyle, marginBottom: 14 }}>Időpont kiválasztása</p>
-                  <div style={{
-                    display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
-                    maxHeight: 200, overflowY: "auto", paddingRight: 4,
-                    scrollbarWidth: "thin", scrollbarColor: "#2d2d44 transparent",
-                  }}>
-                    {Array.from({ length: 71 }, (_, i) => {
-                      const totalMins = 4 * 60 + 30 + i * 15;
-                      const h = Math.floor(totalMins / 60);
-                      const m = totalMins % 60;
-                      const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
-                      return (
-                        <button key={time} onClick={() => {
-                          const d = selectedDate ? new Date(selectedDate) : new Date();
-                          d.setHours(h, Number(m), 0, 0);
-                          setSelectedDate(d);
-                        }} style={{
-                          background: isSelected ? "#6366f1" : "#0c0c14",
-                          border: `1px solid ${isSelected ? "#6366f1" : "#1e1e2e"}`,
-                          borderRadius: 8, padding: "9px 0", fontSize: 13,
-                          color: isSelected ? "#fff" : "#94a3b8",
-                          cursor: "pointer", fontWeight: isSelected ? 600 : 400,
-                          transition: "all 0.15s",
-                        }}>{time}</button>
-                      );
-                    })}
-                  </div>
+                  <p style={{ ...labelStyle, marginBottom: 16 }}>Időpont kiválasztása</p>
+                  {[
+                    { label: "Reggel", from: "04:30", to: "11:45" },
+                    { label: "Délután", from: "12:00", to: "17:45" },
+                    { label: "Este", from: "18:00", to: "22:00" },
+                  ].map(({ label, from, to }) => {
+                    const [fh, fm] = from.split(":").map(Number);
+                    const [th, tm] = to.split(":").map(Number);
+                    const slots = [];
+                    let cur = fh * 60 + fm;
+                    const end = th * 60 + tm;
+                    while (cur <= end) {
+                      const h = Math.floor(cur / 60);
+                      const m = cur % 60;
+                      slots.push({ h, m, time: `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}` });
+                      cur += 15;
+                    }
+                    return (
+                      <div key={label} style={{ marginBottom: 18 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
+                          <div style={{ flex: 1, height: 1, background: "#1e1e2e" }} />
+                        </div>
+                        <div style={{
+                          display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4,
+                          scrollbarWidth: "none", msOverflowStyle: "none",
+                        }}>
+                          {slots.map(({ h, m, time }) => {
+                            const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
+                            return (
+                              <button key={time} onClick={() => {
+                                const d = selectedDate ? new Date(selectedDate) : new Date();
+                                d.setHours(h, m, 0, 0);
+                                setSelectedDate(d);
+                              }} style={{
+                                flexShrink: 0,
+                                background: isSelected ? "#6366f1" : "#0c0c14",
+                                border: `1px solid ${isSelected ? "#6366f155" : "#1e1e2e"}`,
+                                borderRadius: 100,
+                                padding: "7px 14px",
+                                fontSize: 13,
+                                color: isSelected ? "#fff" : "#64748b",
+                                cursor: "pointer",
+                                fontWeight: isSelected ? 600 : 400,
+                                transition: "all 0.15s",
+                                boxShadow: isSelected ? "0 0 12px #6366f155" : "none",
+                                letterSpacing: "0.02em",
+                              }}>{time}</button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Kiválasztott időpont összefoglaló */}
