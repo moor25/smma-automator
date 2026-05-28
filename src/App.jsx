@@ -1,4 +1,8 @@
 import { useState } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { hu } from "date-fns/locale";
+import "react-datepicker/dist/react-datepicker.css";
+registerLocale("hu", hu);
 
 const APPS_SCRIPT_CODE = `// =============================================
 //  SMMA Meeting Automator – Google Apps Script
@@ -282,10 +286,11 @@ export default function App() {
   const [tab, setTab] = useState("schedule");
   const scriptUrl = "https://script.google.com/macros/s/AKfycby9zk76aFcq4kHVc6xO1CKSZMqucFQ-KupEto6baRI0nhfaGuelM91yBFXBX6r4oidq/exec";
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
+  const [selectedDate, setSelectedDate] = useState(null);
   const [status, setStatus] = useState("idle");
   const [copied, setCopied] = useState(false);
 
-  const meetingDate = form.datetime ? new Date(form.datetime) : null;
+  const meetingDate = selectedDate || null;
   const diffHours = meetingDate ? (meetingDate - new Date()) / 3600000 : 0;
 
   const reminders = (() => {
@@ -299,13 +304,13 @@ export default function App() {
   })();
 
   const handleSubmit = () => {
-    if (!scriptUrl || !form.email || !form.datetime) return;
+    if (!scriptUrl || !form.email || !selectedDate) return;
     setStatus("loading");
 
     const params = new URLSearchParams({
       email: form.email,
       name: form.name,
-      datetime: form.datetime,
+      datetime: selectedDate.toISOString(),
     });
     const popup = window.open(
       `${scriptUrl}?${params}`,
@@ -317,6 +322,7 @@ export default function App() {
     setTimeout(() => {
       setStatus("success");
       setForm({ email: "", name: "", datetime: "" });
+      setSelectedDate(null);
     }, 2000);
   };
 
@@ -366,6 +372,28 @@ export default function App() {
         .pop { animation: pop 0.4s ease forwards; }
         @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
         .blink { animation: blink 2s ease infinite; }
+
+        .react-datepicker-wrapper { width: 100%; }
+        .react-datepicker-popper { z-index: 999; }
+        .dark-calendar { background: #13131a !important; border: 1px solid #2d2d44 !important; border-radius: 14px !important; font-family: 'Inter', sans-serif !important; box-shadow: 0 20px 40px #00000066 !important; }
+        .dark-calendar .react-datepicker__header { background: #1a1a2e !important; border-bottom: 1px solid #2d2d44 !important; border-radius: 14px 14px 0 0 !important; padding: 14px 0 10px !important; }
+        .dark-calendar .react-datepicker__current-month { color: #e2e8f0 !important; font-weight: 600 !important; font-size: 14px !important; }
+        .dark-calendar .react-datepicker__day-name { color: #64748b !important; font-size: 12px !important; width: 36px !important; }
+        .dark-calendar .react-datepicker__day { color: #94a3b8 !important; width: 36px !important; height: 36px !important; line-height: 36px !important; border-radius: 8px !important; font-size: 13px !important; }
+        .dark-calendar .react-datepicker__day:hover { background: #6366f133 !important; color: #e2e8f0 !important; }
+        .dark-calendar .react-datepicker__day--selected { background: #6366f1 !important; color: #fff !important; font-weight: 600 !important; }
+        .dark-calendar .react-datepicker__day--today { color: #818cf8 !important; font-weight: 700 !important; }
+        .dark-calendar .react-datepicker__day--disabled { color: #2d2d44 !important; }
+        .dark-calendar .react-datepicker__navigation-icon::before { border-color: #64748b !important; }
+        .dark-calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before { border-color: #e2e8f0 !important; }
+        .dark-calendar .react-datepicker__time-container { border-left: 1px solid #2d2d44 !important; }
+        .dark-calendar .react-datepicker__time-container .react-datepicker__header { background: #1a1a2e !important; }
+        .dark-calendar .react-datepicker__time-container .react-datepicker__time { background: #13131a !important; }
+        .dark-calendar .react-datepicker__time-list-item { color: #94a3b8 !important; height: 36px !important; line-height: 36px !important; padding: 0 14px !important; font-size: 13px !important; }
+        .dark-calendar .react-datepicker__time-list-item:hover { background: #6366f133 !important; color: #e2e8f0 !important; }
+        .dark-calendar .react-datepicker__time-list-item--selected { background: #6366f1 !important; color: #fff !important; font-weight: 600 !important; }
+        .dark-calendar .react-datepicker__time-caption { color: #64748b !important; font-size: 12px !important; }
+        .dark-calendar .react-datepicker__triangle { display: none !important; }
       `}</style>
 
       {/* Kijelentkezés gomb */}
@@ -477,9 +505,22 @@ export default function App() {
 
                 <div style={{ marginBottom: 24 }} className="fu fu3">
                   <label style={labelStyle}>Egyeztetett időpont *</label>
-                  <input type="datetime-local" value={form.datetime}
-                    onChange={e => setForm(f => ({ ...f, datetime: e.target.value }))}
-                    style={{ ...inputStyle, colorScheme: "dark" }} />
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={date => setSelectedDate(date)}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="yyyy. MMMM d. HH:mm"
+                    locale="hu"
+                    minDate={new Date()}
+                    placeholderText="Válassz dátumot és időpontot"
+                    calendarClassName="dark-calendar"
+                    popperPlacement="bottom-start"
+                    customInput={
+                      <input style={inputStyle} />
+                    }
+                  />
                 </div>
 
                 {reminders.length > 0 && (
@@ -507,13 +548,13 @@ export default function App() {
                 <button
                   className="submit-btn"
                   onClick={handleSubmit}
-                  disabled={status === "loading" || !form.email || !form.name || !form.datetime || !scriptUrl}
+                  disabled={status === "loading" || !form.email || !form.name || !selectedDate}
                   style={{
                     width: "100%", background: "#4f46e5",
                     color: "#fff", border: "none", borderRadius: 12,
                     padding: "14px", fontSize: 15, fontWeight: 600,
                     cursor: "pointer", transition: "all 0.2s",
-                    opacity: (!form.email || !form.name || !form.datetime || !scriptUrl) ? 0.4 : 1,
+                    opacity: (!form.email || !form.name || !selectedDate) ? 0.4 : 1,
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
