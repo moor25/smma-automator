@@ -530,14 +530,20 @@ export default function App() {
                 {/* Időpont */}
                 <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 16, padding: "20px", marginBottom: 12 }}>
                   <p style={{ ...labelStyle, marginBottom: 14 }}>Időpont kiválasztása</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-                    {["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"].map(time => {
-                      const [h, m] = time.split(":").map(Number);
-                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
+                    maxHeight: 200, overflowY: "auto", paddingRight: 4,
+                    scrollbarWidth: "thin", scrollbarColor: "#2d2d44 transparent",
+                  }}>
+                    {Array.from({ length: 48 }, (_, i) => {
+                      const h = Math.floor(i / 2);
+                      const m = i % 2 === 0 ? "00" : "30";
+                      const time = `${String(h).padStart(2, "0")}:${m}`;
+                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === Number(m);
                       return (
                         <button key={time} onClick={() => {
                           const d = selectedDate ? new Date(selectedDate) : new Date();
-                          d.setHours(h, m, 0, 0);
+                          d.setHours(h, Number(m), 0, 0);
                           setSelectedDate(d);
                         }} style={{
                           background: isSelected ? "#6366f1" : "#0c0c14",
@@ -553,7 +559,7 @@ export default function App() {
                 </div>
 
                 {/* Kiválasztott időpont összefoglaló */}
-                {selectedDate && selectedDate.getHours() > 0 && (
+                {selectedDate && (selectedDate.getHours() > 0 || selectedDate.getMinutes() === 0) && (
                   <div style={{ background: "#6366f110", border: "1px solid #6366f133", borderRadius: 12, padding: "14px 16px", marginBottom: 12, textAlign: "center" }}>
                     <p style={{ fontSize: 12, color: "#818cf8", margin: "0 0 4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Egyeztetett időpont</p>
                     <p style={{ fontSize: 15, color: "#e2e8f0", margin: 0, fontWeight: 500 }}>
@@ -571,13 +577,13 @@ export default function App() {
                 <button
                   className="submit-btn"
                   onClick={handleSubmit}
-                  disabled={status === "loading" || !form.email || !form.name || !selectedDate || !selectedDate.getHours()}
+                  disabled={status === "loading" || !form.email || !form.name || !selectedDate}
                   style={{
                     width: "100%", background: "#4f46e5",
                     color: "#fff", border: "none", borderRadius: 12,
                     padding: "14px", fontSize: 15, fontWeight: 600,
                     cursor: "pointer", transition: "all 0.2s",
-                    opacity: (!form.email || !form.name || !selectedDate || !selectedDate.getHours()) ? 0.4 : 1,
+                    opacity: (!form.email || !form.name || !selectedDate) ? 0.4 : 1,
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
