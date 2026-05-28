@@ -190,7 +190,82 @@ const STEPS = [
   }
 ];
 
+const PASSWORD = "core2024";
+
+function LoginScreen({ onLogin }) {
+  const [pw, setPw] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleLogin = () => {
+    if (pw === PASSWORD) {
+      sessionStorage.setItem("smma_auth", "1");
+      onLogin();
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 1500);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh", background: "#0c0c14", display: "flex",
+      alignItems: "center", justifyContent: "center", padding: 16,
+      fontFamily: "'Inter', 'Segoe UI', sans-serif",
+    }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');`}</style>
+      <div style={{
+        background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20,
+        padding: "40px 32px", width: "100%", maxWidth: 360, textAlign: "center",
+      }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: "50%", background: "#6366f120",
+          border: "1px solid #6366f140", display: "flex", alignItems: "center",
+          justifyContent: "center", margin: "0 auto 20px", fontSize: 22,
+        }}>🔒</div>
+        <h2 style={{
+          fontFamily: "'Syne', sans-serif", fontSize: 22, fontWeight: 800,
+          color: "#e2e8f0", margin: "0 0 6px",
+        }}>CORE Marketing</h2>
+        <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 28px" }}>
+          Add meg a jelszót a belépéshez
+        </p>
+        <input
+          type="password"
+          placeholder="Jelszó"
+          value={pw}
+          onChange={e => setPw(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleLogin()}
+          autoFocus
+          style={{
+            width: "100%", background: "#0c0c14",
+            border: `1px solid ${error ? "#ef4444" : "#1e1e2e"}`,
+            borderRadius: 10, padding: "12px 14px", color: "#e2e8f0",
+            fontSize: 14, outline: "none", marginBottom: 12,
+            transition: "border-color 0.2s", boxSizing: "border-box",
+          }}
+        />
+        {error && (
+          <p style={{ color: "#ef4444", fontSize: 12, margin: "0 0 12px" }}>
+            Helytelen jelszó
+          </p>
+        )}
+        <button
+          onClick={handleLogin}
+          style={{
+            width: "100%", background: "#6366f1", color: "#fff", border: "none",
+            borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Belépés →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem("smma_auth") === "1");
   const [tab, setTab] = useState("schedule");
   const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem("smma_script_url") || "");
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
@@ -237,6 +312,8 @@ export default function App() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
+
+  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
 
   return (
     <div style={{
