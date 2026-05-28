@@ -369,6 +369,22 @@ export default function App() {
         .blink { animation: blink 2s ease infinite; }
       `}</style>
 
+      {/* Kijelentkezés gomb */}
+      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100 }}>
+        <button
+          onClick={() => { sessionStorage.removeItem("smma_auth"); setRole(""); }}
+          style={{
+            background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 8,
+            padding: "6px 12px", fontSize: 12, color: "#64748b",
+            cursor: "pointer", transition: "all 0.2s",
+          }}
+          onMouseEnter={e => { e.target.style.color = "#e2e8f0"; e.target.style.borderColor = "#6366f144"; }}
+          onMouseLeave={e => { e.target.style.color = "#64748b"; e.target.style.borderColor = "#1e1e2e"; }}
+        >
+          Kijelentkezés
+        </button>
+      </div>
+
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 32 }} className="fu fu1">
         <div style={{
