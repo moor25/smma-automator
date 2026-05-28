@@ -374,25 +374,30 @@ export default function App() {
         .blink { animation: blink 2s ease infinite; }
 
         .react-datepicker-wrapper { width: 100%; }
-        .react-datepicker-popper { z-index: 999; }
-        .dark-calendar { background: #13131a !important; border: 1px solid #2d2d44 !important; border-radius: 14px !important; font-family: 'Inter', sans-serif !important; box-shadow: 0 20px 40px #00000066 !important; }
-        .dark-calendar .react-datepicker__header { background: #1a1a2e !important; border-bottom: 1px solid #2d2d44 !important; border-radius: 14px 14px 0 0 !important; padding: 14px 0 10px !important; }
-        .dark-calendar .react-datepicker__current-month { color: #e2e8f0 !important; font-weight: 600 !important; font-size: 14px !important; }
-        .dark-calendar .react-datepicker__day-name { color: #64748b !important; font-size: 12px !important; width: 36px !important; }
-        .dark-calendar .react-datepicker__day { color: #94a3b8 !important; width: 36px !important; height: 36px !important; line-height: 36px !important; border-radius: 8px !important; font-size: 13px !important; }
+        .dark-calendar { background: #0c0c14 !important; border: none !important; border-radius: 0 !important; font-family: 'Inter', sans-serif !important; width: 100% !important; }
+        .dark-calendar .react-datepicker__month-container { width: 100% !important; float: none !important; }
+        .dark-calendar .react-datepicker__header { background: #0c0c14 !important; border-bottom: 1px solid #1e1e2e !important; border-radius: 0 !important; padding: 16px 0 12px !important; }
+        .dark-calendar .react-datepicker__current-month { color: #e2e8f0 !important; font-weight: 600 !important; font-size: 15px !important; margin-bottom: 8px !important; }
+        .dark-calendar .react-datepicker__day-names { display: flex !important; justify-content: space-around !important; padding: 0 8px !important; }
+        .dark-calendar .react-datepicker__day-name { color: #64748b !important; font-size: 12px !important; width: 36px !important; text-align: center !important; }
+        .dark-calendar .react-datepicker__month { padding: 8px !important; }
+        .dark-calendar .react-datepicker__week { display: flex !important; justify-content: space-around !important; }
+        .dark-calendar .react-datepicker__day { color: #94a3b8 !important; width: 36px !important; height: 36px !important; line-height: 36px !important; border-radius: 8px !important; font-size: 13px !important; text-align: center !important; margin: 2px !important; }
         .dark-calendar .react-datepicker__day:hover { background: #6366f133 !important; color: #e2e8f0 !important; }
-        .dark-calendar .react-datepicker__day--selected { background: #6366f1 !important; color: #fff !important; font-weight: 600 !important; }
+        .dark-calendar .react-datepicker__day--selected, .dark-calendar .react-datepicker__day--selected:hover { background: #6366f1 !important; color: #fff !important; font-weight: 600 !important; }
         .dark-calendar .react-datepicker__day--today { color: #818cf8 !important; font-weight: 700 !important; }
-        .dark-calendar .react-datepicker__day--disabled { color: #2d2d44 !important; }
+        .dark-calendar .react-datepicker__day--disabled { color: #2d2d44 !important; pointer-events: none !important; }
+        .dark-calendar .react-datepicker__navigation { top: 18px !important; }
         .dark-calendar .react-datepicker__navigation-icon::before { border-color: #64748b !important; }
         .dark-calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before { border-color: #e2e8f0 !important; }
-        .dark-calendar .react-datepicker__time-container { border-left: 1px solid #2d2d44 !important; }
-        .dark-calendar .react-datepicker__time-container .react-datepicker__header { background: #1a1a2e !important; }
-        .dark-calendar .react-datepicker__time-container .react-datepicker__time { background: #13131a !important; }
-        .dark-calendar .react-datepicker__time-list-item { color: #94a3b8 !important; height: 36px !important; line-height: 36px !important; padding: 0 14px !important; font-size: 13px !important; }
+        .dark-calendar .react-datepicker__time-container { border-left: 1px solid #1e1e2e !important; width: 100px !important; }
+        .dark-calendar .react-datepicker__time-container .react-datepicker__header { background: #0c0c14 !important; border-bottom: 1px solid #1e1e2e !important; }
+        .dark-calendar .react-datepicker__time-container .react-datepicker__time { background: #0c0c14 !important; }
+        .dark-calendar .react-datepicker__time-list { scrollbar-width: thin; scrollbar-color: #2d2d44 transparent; }
+        .dark-calendar .react-datepicker__time-list-item { color: #94a3b8 !important; height: 36px !important; line-height: 36px !important; padding: 0 12px !important; font-size: 13px !important; border-radius: 6px !important; margin: 1px 4px !important; }
         .dark-calendar .react-datepicker__time-list-item:hover { background: #6366f133 !important; color: #e2e8f0 !important; }
         .dark-calendar .react-datepicker__time-list-item--selected { background: #6366f1 !important; color: #fff !important; font-weight: 600 !important; }
-        .dark-calendar .react-datepicker__time-caption { color: #64748b !important; font-size: 12px !important; }
+        .dark-calendar .react-datepicker__time-caption { color: #64748b !important; font-size: 12px !important; padding: 8px 0 !important; }
         .dark-calendar .react-datepicker__triangle { display: none !important; }
       `}</style>
 
@@ -503,24 +508,27 @@ export default function App() {
                     style={inputStyle} />
                 </div>
 
-                <div style={{ marginBottom: 24 }} className="fu fu3">
+                <div style={{ marginBottom: 20 }} className="fu fu3">
                   <label style={labelStyle}>Egyeztetett időpont *</label>
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={date => setSelectedDate(date)}
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    dateFormat="yyyy. MMMM d. HH:mm"
-                    locale="hu"
-                    minDate={new Date()}
-                    placeholderText="Válassz dátumot és időpontot"
-                    calendarClassName="dark-calendar"
-                    popperPlacement="bottom-start"
-                    customInput={
-                      <input style={inputStyle} />
-                    }
-                  />
+                  <div style={{ background: "#0c0c14", border: "1px solid #1e1e2e", borderRadius: 12, overflow: "hidden" }}>
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={date => setSelectedDate(date)}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="yyyy. MMMM d. HH:mm"
+                      locale="hu"
+                      minDate={new Date()}
+                      calendarClassName="dark-calendar"
+                      inline
+                    />
+                  </div>
+                  {selectedDate && (
+                    <div style={{ marginTop: 8, background: "#6366f110", border: "1px solid #6366f133", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#a5b4fc", textAlign: "center" }}>
+                      ✓ {selectedDate.toLocaleString("hu-HU", { year: "numeric", month: "long", day: "numeric", weekday: "long", hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  )}
                 </div>
 
                 {reminders.length > 0 && (
