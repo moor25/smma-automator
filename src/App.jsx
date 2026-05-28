@@ -190,21 +190,34 @@ const STEPS = [
   }
 ];
 
-const PASSWORD = "core2024";
+const USERS = {
+  coreadmin: { password: "kukac2005", role: "admin" },
+  coreuser:  { password: "coreuser2026", role: "user" },
+};
 
 function LoginScreen({ onLogin }) {
+  const [username, setUsername] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
 
   const handleLogin = () => {
-    if (pw === PASSWORD) {
-      sessionStorage.setItem("smma_auth", "1");
-      onLogin();
+    const user = USERS[username.trim().toLowerCase()];
+    if (user && pw === user.password) {
+      sessionStorage.setItem("smma_auth", user.role);
+      onLogin(user.role);
     } else {
       setError(true);
       setTimeout(() => setError(false), 1500);
     }
   };
+
+  const fieldStyle = (hasError) => ({
+    width: "100%", background: "#0c0c14",
+    border: `1px solid ${hasError ? "#ef4444" : "#1e1e2e"}`,
+    borderRadius: 10, padding: "12px 14px", color: "#e2e8f0",
+    fontSize: 14, outline: "none", marginBottom: 12,
+    transition: "border-color 0.2s", boxSizing: "border-box",
+  });
 
   return (
     <div style={{
@@ -227,26 +240,27 @@ function LoginScreen({ onLogin }) {
           color: "#e2e8f0", margin: "0 0 6px",
         }}>CORE Marketing</h2>
         <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 28px" }}>
-          Add meg a jelszót a belépéshez
+          Belépés a meeting rendszerbe
         </p>
+        <input
+          type="text"
+          placeholder="Felhasználónév"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          autoFocus
+          style={fieldStyle(error)}
+        />
         <input
           type="password"
           placeholder="Jelszó"
           value={pw}
           onChange={e => setPw(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleLogin()}
-          autoFocus
-          style={{
-            width: "100%", background: "#0c0c14",
-            border: `1px solid ${error ? "#ef4444" : "#1e1e2e"}`,
-            borderRadius: 10, padding: "12px 14px", color: "#e2e8f0",
-            fontSize: 14, outline: "none", marginBottom: 12,
-            transition: "border-color 0.2s", boxSizing: "border-box",
-          }}
+          style={fieldStyle(error)}
         />
         {error && (
           <p style={{ color: "#ef4444", fontSize: 12, margin: "0 0 12px" }}>
-            Helytelen jelszó
+            Helytelen felhasználónév vagy jelszó
           </p>
         )}
         <button
@@ -265,7 +279,7 @@ function LoginScreen({ onLogin }) {
 }
 
 export default function App() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem("smma_auth") === "1");
+  const [role, setRole] = useState(() => sessionStorage.getItem("smma_auth") || "");
   const [tab, setTab] = useState("schedule");
   const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem("smma_script_url") || "");
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
@@ -313,7 +327,8 @@ export default function App() {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+  if (!role) return <LoginScreen onLogin={(r) => setRole(r)} />;
+  const isAdmin = role === "admin";
 
   return (
     <div style={{
@@ -380,20 +395,22 @@ export default function App() {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: "flex", background: "#13131a", border: "1px solid #1e1e2e",
-        borderRadius: 12, padding: 4, marginBottom: 28, gap: 2,
-      }} className="fu fu2">
-        {[["schedule", "📅 Ütemezés"], ["setup", "⚙️ Beállítás"]].map(([key, label]) => (
-          <button key={key} className="tab" onClick={() => setTab(key)} style={{
-            background: tab === key ? "#6366f1" : "transparent",
-            color: tab === key ? "#fff" : "#64748b",
-            border: "none", borderRadius: 9, padding: "9px 22px",
-            fontSize: 14, fontWeight: 500, cursor: "pointer", transition: "all 0.2s",
-          }}>{label}</button>
-        ))}
-      </div>
+      {/* Tabs — csak adminnak */}
+      {isAdmin && (
+        <div style={{
+          display: "flex", background: "#13131a", border: "1px solid #1e1e2e",
+          borderRadius: 12, padding: 4, marginBottom: 28, gap: 2,
+        }} className="fu fu2">
+          {[["schedule", "📅 Ütemezés"], ["setup", "⚙️ Beállítás"]].map(([key, label]) => (
+            <button key={key} className="tab" onClick={() => setTab(key)} style={{
+              background: tab === key ? "#6366f1" : "transparent",
+              color: tab === key ? "#fff" : "#64748b",
+              border: "none", borderRadius: 9, padding: "9px 22px",
+              fontSize: 14, fontWeight: 500, cursor: "pointer", transition: "all 0.2s",
+            }}>{label}</button>
+          ))}
+        </div>
+      )}
 
       <div style={{ width: "100%", maxWidth: 540 }}>
 
@@ -426,7 +443,7 @@ export default function App() {
             ) : (
               <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20, padding: "28px 24px" }} className="fu fu1">
 
-                {!scriptUrl && (
+                {!scriptUrl && isAdmin && (
                   <div style={{ background: "#f59e0b11", border: "1px solid #f59e0b33", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#fcd34d", cursor: "pointer" }}
                     onClick={() => setTab("setup")}>
                     ⚠️ Még nincs URL beállítva — kattints ide a Beállítás fülhöz
@@ -507,8 +524,8 @@ export default function App() {
           </div>
         )}
 
-        {/* SETUP TAB */}
-        {tab === "setup" && (
+        {/* SETUP TAB — csak admin */}
+        {tab === "setup" && isAdmin && (
           <div>
             <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20, padding: "24px" }} className="fu fu1">
               <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, margin: "0 0 6px" }}>
