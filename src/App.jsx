@@ -184,14 +184,15 @@ const STEPS = [
   },
   {
     num: "5",
-    title: "Illeszd be az URL-t ide",
-    desc: "Az \"Ütemezés\" fülön add meg a kapott URL-t. Kész, minden automatikus!"
+    title: "Illeszd be az URL-t lent",
+    desc: "Másold be a kapott URL-t az alábbi mezőbe. Megmarad oldalfrissítés után is. Kész, minden automatikus!",
+    urlInput: true
   }
 ];
 
 export default function App() {
   const [tab, setTab] = useState("schedule");
-  const [scriptUrl, setScriptUrl] = useState("");
+  const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem("smma_script_url") || "");
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
   const [status, setStatus] = useState("idle");
   const [copied, setCopied] = useState(false);
@@ -348,23 +349,14 @@ export default function App() {
             ) : (
               <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20, padding: "28px 24px" }} className="fu fu1">
 
-                <div style={{ marginBottom: 20 }} className="fu fu1">
-                  <label style={labelStyle}>Apps Script URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://script.google.com/macros/s/..."
-                    value={scriptUrl}
-                    onChange={e => setScriptUrl(e.target.value)}
-                    style={{...inputStyle, borderColor: scriptUrl ? "#1e1e2e" : "#f59e0b55", fontSize: 12}}
-                  />
-                  {!scriptUrl && (
-                    <p style={{ color: "#f59e0b", fontSize: 11, margin: "6px 0 0" }}>
-                      ⚠️ Még nincs URL beállítva — nézd meg a Beállítás fület
-                    </p>
-                  )}
-                </div>
+                {!scriptUrl && (
+                  <div style={{ background: "#f59e0b11", border: "1px solid #f59e0b33", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#fcd34d", cursor: "pointer" }}
+                    onClick={() => setTab("setup")}>
+                    ⚠️ Még nincs URL beállítva — kattints ide a Beállítás fülhöz
+                  </div>
+                )}
 
-                <div style={{ height: 1, background: "#1e1e2e", margin: "20px 0" }} />
+                <div style={{ height: 1, background: "#1e1e2e", margin: "0 0 20px" }} />
 
                 <div style={{ marginBottom: 16 }} className="fu fu2">
                   <label style={labelStyle}>Ügyfél e-mail *</label>
@@ -469,6 +461,23 @@ export default function App() {
                         color: "#818cf8", fontSize: 13, fontWeight: 500,
                         display: "inline-block", marginTop: 6,
                       }}>{s.link.label}</a>
+                    )}
+                    {s.urlInput && (
+                      <div style={{ marginTop: 10 }}>
+                        <input
+                          type="url"
+                          placeholder="https://script.google.com/macros/s/.../exec"
+                          value={scriptUrl}
+                          onChange={e => {
+                            setScriptUrl(e.target.value);
+                            localStorage.setItem("smma_script_url", e.target.value);
+                          }}
+                          style={{ ...inputStyle, fontSize: 12, borderColor: scriptUrl ? "#22d3a533" : "#f59e0b55" }}
+                        />
+                        {scriptUrl && (
+                          <p style={{ color: "#22d3a5", fontSize: 11, margin: "6px 0 0" }}>✓ URL mentve</p>
+                        )}
+                      </div>
                     )}
                     {s.code && (
                       <div style={{ marginTop: 12, position: "relative" }}>
