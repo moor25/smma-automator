@@ -184,9 +184,8 @@ const STEPS = [
   },
   {
     num: "5",
-    title: "Illeszd be az URL-t lent",
-    desc: "Másold be a kapott URL-t az alábbi mezőbe. Megmarad oldalfrissítés után is. Kész, minden automatikus!",
-    urlInput: true
+    title: "Kész!",
+    desc: "Az URL be van égetve az appba — nincs más teendő. Mostantól minden automatikus."
   }
 ];
 
@@ -281,7 +280,7 @@ function LoginScreen({ onLogin }) {
 export default function App() {
   const [role, setRole] = useState(() => sessionStorage.getItem("smma_auth") || "");
   const [tab, setTab] = useState("schedule");
-  const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem("smma_script_url") || "");
+  const scriptUrl = "https://script.google.com/macros/s/AKfycby9zk76aFcq4kHVc6xO1CKSZMqucFQ-KupEto6baRI0nhfaGuelM91yBFXBX6r4oidq/exec";
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
   const [status, setStatus] = useState("idle");
   const [copied, setCopied] = useState(false);
@@ -459,12 +458,6 @@ export default function App() {
             ) : (
               <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20, padding: "28px 24px" }} className="fu fu1">
 
-                {!scriptUrl && isAdmin && (
-                  <div style={{ background: "#f59e0b11", border: "1px solid #f59e0b33", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#fcd34d", cursor: "pointer" }}
-                    onClick={() => setTab("setup")}>
-                    ⚠️ Még nincs URL beállítva — kattints ide a Beállítás fülhöz
-                  </div>
-                )}
 
                 <div style={{ height: 1, background: "#1e1e2e", margin: "0 0 20px" }} />
 
