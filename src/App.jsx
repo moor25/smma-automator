@@ -460,7 +460,7 @@ export default function App() {
         </div>
       )}
 
-      <div style={{ width: "100%", maxWidth: 540 }}>
+      <div style={{ width: "100%", maxWidth: 480 }}>
 
         {/* SCHEDULE TAB */}
         {tab === "schedule" && (
@@ -489,80 +489,95 @@ export default function App() {
                 </button>
               </div>
             ) : (
-              <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 20, padding: "28px 24px" }} className="fu fu1">
+              <div className="fu fu1">
 
-
-                <div style={{ height: 1, background: "#1e1e2e", margin: "0 0 20px" }} />
-
-                <div style={{ marginBottom: 16 }} className="fu fu2">
-                  <label style={labelStyle}>Ügyfél e-mail *</label>
-                  <input type="email" placeholder="pelda@ceg.hu" value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    style={inputStyle} />
+                {/* Ügyfél adatok */}
+                <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 16, padding: "20px", marginBottom: 12 }}>
+                  <p style={{ ...labelStyle, marginBottom: 14 }}>Ügyfél adatai</p>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={labelStyle}>E-mail *</label>
+                    <input type="email" placeholder="pelda@ceg.hu" value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                      style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Teljes név *</label>
+                    <input type="text" placeholder="Kovács Péter" value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      style={inputStyle} />
+                  </div>
                 </div>
 
-                <div style={{ marginBottom: 16 }} className="fu fu2">
-                  <label style={labelStyle}>Ügyfél neve *</label>
-                  <input type="text" placeholder="Kovács Péter" value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    style={inputStyle} />
-                </div>
-
-                <div style={{ marginBottom: 20 }} className="fu fu3">
-                  <label style={labelStyle}>Egyeztetett időpont *</label>
-                  <div style={{ background: "#0c0c14", border: "1px solid #1e1e2e", borderRadius: 12, overflow: "hidden" }}>
+                {/* Naptár */}
+                <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 16, padding: "20px", marginBottom: 12 }}>
+                  <p style={{ ...labelStyle, marginBottom: 14 }}>Dátum kiválasztása</p>
+                  <div style={{ background: "#0c0c14", borderRadius: 10, overflow: "hidden" }}>
                     <DatePicker
                       selected={selectedDate}
-                      onChange={date => setSelectedDate(date)}
-                      showTimeSelect
-                      timeFormat="HH:mm"
-                      timeIntervals={15}
-                      dateFormat="yyyy. MMMM d. HH:mm"
+                      onChange={date => {
+                        const d = new Date(date);
+                        if (selectedDate) { d.setHours(selectedDate.getHours(), selectedDate.getMinutes()); }
+                        setSelectedDate(d);
+                      }}
                       locale="hu"
                       minDate={new Date()}
                       calendarClassName="dark-calendar"
                       inline
                     />
                   </div>
-                  {selectedDate && (
-                    <div style={{ marginTop: 8, background: "#6366f110", border: "1px solid #6366f133", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#a5b4fc", textAlign: "center" }}>
-                      ✓ {selectedDate.toLocaleString("hu-HU", { year: "numeric", month: "long", day: "numeric", weekday: "long", hour: "2-digit", minute: "2-digit" })}
-                    </div>
-                  )}
                 </div>
 
-                {reminders.length > 0 && (
-                  <div style={{
-                    background: "#6366f10d", border: "1px solid #6366f133",
-                    borderRadius: 12, padding: "14px 16px", marginBottom: 20,
-                  }} className="fu fu3">
-                    <p style={{ fontSize: 11, color: "#a5b4fc", fontWeight: 600, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                      🔔 Automatikus emlékeztetők
+                {/* Időpont */}
+                <div style={{ background: "#13131a", border: "1px solid #1e1e2e", borderRadius: 16, padding: "20px", marginBottom: 12 }}>
+                  <p style={{ ...labelStyle, marginBottom: 14 }}>Időpont kiválasztása</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                    {["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"].map(time => {
+                      const [h, m] = time.split(":").map(Number);
+                      const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
+                      return (
+                        <button key={time} onClick={() => {
+                          const d = selectedDate ? new Date(selectedDate) : new Date();
+                          d.setHours(h, m, 0, 0);
+                          setSelectedDate(d);
+                        }} style={{
+                          background: isSelected ? "#6366f1" : "#0c0c14",
+                          border: `1px solid ${isSelected ? "#6366f1" : "#1e1e2e"}`,
+                          borderRadius: 8, padding: "9px 0", fontSize: 13,
+                          color: isSelected ? "#fff" : "#94a3b8",
+                          cursor: "pointer", fontWeight: isSelected ? 600 : 400,
+                          transition: "all 0.15s",
+                        }}>{time}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Kiválasztott időpont összefoglaló */}
+                {selectedDate && selectedDate.getHours() > 0 && (
+                  <div style={{ background: "#6366f110", border: "1px solid #6366f133", borderRadius: 12, padding: "14px 16px", marginBottom: 12, textAlign: "center" }}>
+                    <p style={{ fontSize: 12, color: "#818cf8", margin: "0 0 4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Egyeztetett időpont</p>
+                    <p style={{ fontSize: 15, color: "#e2e8f0", margin: 0, fontWeight: 500 }}>
+                      {selectedDate.toLocaleString("hu-HU", { year: "numeric", month: "long", day: "numeric", weekday: "long", hour: "2-digit", minute: "2-digit" })}
                     </p>
-                    {reminders.map((r, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#e2e8f0", marginBottom: i < reminders.length - 1 ? 6 : 0 }}>
-                        <span style={{ color: "#818cf8" }}>→</span> {r}
-                      </div>
-                    ))}
                   </div>
                 )}
 
                 {status === "error" && (
-                  <div style={{ background: "#ef444415", border: "1px solid #ef444433", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#fca5a5" }}>
-                    ❌ Hiba történt. Ellenőrizd az Apps Script URL-t és a beállításokat.
+                  <div style={{ background: "#ef444415", border: "1px solid #ef444433", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: "#fca5a5" }}>
+                    Hiba történt. Ellenőrizd az Apps Script URL-t.
                   </div>
                 )}
 
                 <button
                   className="submit-btn"
                   onClick={handleSubmit}
-                  disabled={status === "loading" || !form.email || !form.name || !selectedDate}
+                  disabled={status === "loading" || !form.email || !form.name || !selectedDate || !selectedDate.getHours()}
                   style={{
                     width: "100%", background: "#4f46e5",
                     color: "#fff", border: "none", borderRadius: 12,
                     padding: "14px", fontSize: 15, fontWeight: 600,
                     cursor: "pointer", transition: "all 0.2s",
-                    opacity: (!form.email || !form.name || !selectedDate) ? 0.4 : 1,
+                    opacity: (!form.email || !form.name || !selectedDate || !selectedDate.getHours()) ? 0.4 : 1,
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
