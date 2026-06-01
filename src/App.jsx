@@ -307,23 +307,37 @@ export default function App() {
     if (!scriptUrl || !form.email || !selectedDate) return;
     setStatus("loading");
 
+    const callbackName = "smma_cb_" + Date.now();
     const params = new URLSearchParams({
       email: form.email,
       name: form.name,
       datetime: selectedDate.toISOString(),
+      callback: callbackName,
     });
-    const popup = window.open(
-      `${scriptUrl}?${params}`,
-      "_blank",
-      "width=1,height=1,left=0,top=0"
-    );
-    setTimeout(() => popup?.close(), 5000);
 
-    setTimeout(() => {
-      setStatus("success");
-      setForm({ email: "", name: "", datetime: "" });
-      setSelectedDate(null);
-    }, 2000);
+    const script = document.createElement("script");
+    script.src = `${scriptUrl}?${params}`;
+
+    const cleanup = () => {
+      delete window[callbackName];
+      script.remove();
+    };
+
+    window[callbackName] = (res) => {
+      cleanup();
+      if (res && res.success === false) {
+        setStatus("error");
+      } else {
+        setStatus("success");
+        setForm({ email: "", name: "", datetime: "" });
+        setSelectedDate(null);
+      }
+    };
+
+    script.onerror = () => { cleanup(); setStatus("error"); };
+    setTimeout(() => { cleanup(); setStatus(s => s === "loading" ? "success" : s); setForm({ email: "", name: "", datetime: "" }); setSelectedDate(null); }, 10000);
+
+    document.head.appendChild(script);
   };
 
   const copyCode = () => {
