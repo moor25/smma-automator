@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { hu } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
@@ -289,6 +289,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [status, setStatus] = useState("idle");
   const [copied, setCopied] = useState(false);
+  const scrollRefs = useRef({});
 
   const meetingDate = selectedDate || null;
   const diffHours = meetingDate ? (meetingDate - new Date()) / 3600000 : 0;
@@ -560,39 +561,56 @@ export default function App() {
                       slots.push({ h, m, time: `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}` });
                       cur += 15;
                     }
+                    const scroll = (dir) => {
+                      const el = scrollRefs.current[label];
+                      if (el) el.scrollBy({ left: dir * 160, behavior: "smooth" });
+                    };
                     return (
                       <div key={label} style={{ marginBottom: 18 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
                           <div style={{ flex: 1, height: 1, background: "#1e1e2e" }} />
                         </div>
-                        <div style={{
-                          display: "flex", gap: 7, overflowX: "auto", paddingBottom: 4,
-                          scrollbarWidth: "none", msOverflowStyle: "none",
-                        }}>
-                          {slots.map(({ h, m, time }) => {
-                            const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
-                            return (
-                              <button key={time} onClick={() => {
-                                const d = selectedDate ? new Date(selectedDate) : new Date();
-                                d.setHours(h, m, 0, 0);
-                                setSelectedDate(d);
-                              }} style={{
-                                flexShrink: 0,
-                                background: isSelected ? "#6366f1" : "#0c0c14",
-                                border: `1px solid ${isSelected ? "#6366f155" : "#1e1e2e"}`,
-                                borderRadius: 100,
-                                padding: "7px 14px",
-                                fontSize: 13,
-                                color: isSelected ? "#fff" : "#64748b",
-                                cursor: "pointer",
-                                fontWeight: isSelected ? 600 : 400,
-                                transition: "all 0.15s",
-                                boxShadow: isSelected ? "0 0 12px #6366f155" : "none",
-                                letterSpacing: "0.02em",
-                              }}>{time}</button>
-                            );
-                          })}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <button onClick={() => scroll(-1)} style={{
+                            flexShrink: 0, width: 28, height: 28, borderRadius: "50%",
+                            background: "#0c0c14", border: "1px solid #1e1e2e",
+                            color: "#64748b", cursor: "pointer", fontSize: 13,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}>‹</button>
+                          <div ref={el => scrollRefs.current[label] = el} style={{
+                            display: "flex", gap: 7, overflowX: "auto", flex: 1,
+                            paddingBottom: 4, scrollbarWidth: "none", msOverflowStyle: "none",
+                          }}>
+                            {slots.map(({ h, m, time }) => {
+                              const isSelected = selectedDate && selectedDate.getHours() === h && selectedDate.getMinutes() === m;
+                              return (
+                                <button key={time} onClick={() => {
+                                  const d = selectedDate ? new Date(selectedDate) : new Date();
+                                  d.setHours(h, m, 0, 0);
+                                  setSelectedDate(d);
+                                }} style={{
+                                  flexShrink: 0,
+                                  background: isSelected ? "#6366f1" : "#0c0c14",
+                                  border: `1px solid ${isSelected ? "#6366f155" : "#1e1e2e"}`,
+                                  borderRadius: 100, padding: "7px 14px", fontSize: 13,
+                                  color: isSelected ? "#fff" : "#64748b",
+                                  cursor: "pointer", fontWeight: isSelected ? 600 : 400,
+                                  transition: "all 0.15s",
+                                  boxShadow: isSelected ? "0 0 12px #6366f155" : "none",
+                                  letterSpacing: "0.02em",
+                                }}>{time}</button>
+                              );
+                            })}
+                          </div>
+                          <button onClick={() => scroll(1)} style={{
+                            flexShrink: 0, width: 28, height: 28, borderRadius: "50%",
+                            background: "#0c0c14", border: "1px solid #1e1e2e",
+                            color: "#64748b", cursor: "pointer", fontSize: 13,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}>›</button>
                         </div>
                       </div>
                     );
