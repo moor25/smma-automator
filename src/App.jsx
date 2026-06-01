@@ -284,7 +284,7 @@ function LoginScreen({ onLogin }) {
 export default function App() {
   const [role, setRole] = useState(() => sessionStorage.getItem("smma_auth") || "");
   const [tab, setTab] = useState("schedule");
-  const scriptUrl = "https://script.google.com/macros/s/AKfycby9zk76aFcq4kHVc6xO1CKSZMqucFQ-KupEto6baRI0nhfaGuelM91yBFXBX6r4oidq/exec";
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbwJQnh8cKPYL_ndhNMZ7FJwn-iG-yz2tsOm0GjrcP5P3Zsmqp1MYUcEbiAz98jRb3IA/exec";
   const [form, setForm] = useState({ email: "", name: "", datetime: "" });
   const [selectedDate, setSelectedDate] = useState(null);
   const [status, setStatus] = useState("idle");
